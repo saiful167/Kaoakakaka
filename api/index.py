@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
 
-# Flask অ্যাপ তৈরি
 app = Flask(__name__)
 CORS(app)
 
@@ -29,6 +28,6 @@ def fetch_video():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-# Vercel এরর (issubclass) ফিক্স করার জন্য এটিই প্রধান সমাধান
-# এখানে 'app' ই সরাসরি অবজেক্ট হতে হবে, কোনো ফাংশনের ভেতরে নয়।
-application = app 
+# এই অংশটি এভাবেই রাখুন, বাড়তি কিছু লিখবেন না
+if __name__ == '__main__':
+    app.run()
