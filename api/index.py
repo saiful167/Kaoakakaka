@@ -19,7 +19,7 @@ def fetch_video():
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
             'X-Requested-With': 'XMLHttpRequest',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         }
 
         response = requests.post(api_url, data=payload, headers=headers)
@@ -28,7 +28,5 @@ def fetch_video():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-# Vercel-এর জন্য জরুরি
-def handler(event, context):
-    return app(event, context)
-
+# Vercel রানিং এর জন্য এটি খুবই জরুরি
+app = app
