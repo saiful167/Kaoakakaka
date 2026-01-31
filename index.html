@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saiful Downloader | TikTok</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root { --primary: #00f2ea; --secondary: #ff0050; --bg: #0f172a; --card: #1e293b; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg); color: #f8fafc; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .main-card { width: 100%; max-width: 500px; background: var(--card); border-radius: 24px; padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); border: 1px solid #334155; margin-top: 40px; }
+        .header h1 { text-align: center; font-size: 28px; background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 25px; }
+        .input-group { display: flex; flex-direction: column; gap: 15px; }
+        input { background: #0f172a; border: 2px solid #334155; padding: 16px; border-radius: 15px; color: white; font-size: 16px; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--primary); }
+        .btn-fetch { background: white; color: black; border: none; padding: 16px; border-radius: 15px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
+        .btn-fetch:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        
+        #result-box { display: none; margin-top: 30px; animation: fadeInUp 0.5s ease; }
+        .v-preview { background: #334155; border-radius: 15px; padding: 15px; display: flex; gap: 15px; align-items: center; margin-bottom: 20px; }
+        .v-preview img { width: 90px; height: 90px; border-radius: 10px; object-fit: cover; border: 2px solid var(--primary); }
+        .v-preview h3 { font-size: 14px; margin: 0; line-height: 1.4; }
+        
+        .dl-buttons { display: grid; gap: 12px; }
+        .dl-btn { display: flex; align-items: center; justify-content: center; gap: 10px; background: var(--secondary); color: white; text-decoration: none; padding: 14px; border-radius: 12px; font-weight: 600; transition: 0.2s; }
+        .dl-btn:hover { filter: brightness(1.1); }
+        
+        .dev-footer { margin-top: 40px; text-align: center; border-top: 1px solid #334155; padding-top: 25px; }
+        .dev-name { color: var(--primary); font-weight: bold; margin-bottom: 15px; letter-spacing: 1px; }
+        .socials { display: flex; justify-content: center; gap: 15px; }
+        .socials a { color: #cbd5e1; font-size: 22px; transition: 0.3s; }
+        .socials a:hover { color: var(--primary); transform: scale(1.2); }
+        #loader { display: none; text-align: center; margin: 20px 0; color: var(--primary); }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="main-card">
+        <div class="header"><h1>Saiful Downloader</h1></div>
+        <div class="input-group">
+            <input type="text" id="urlInput" placeholder="Paste TikTok Link here...">
+            <button class="btn-fetch" onclick="fetchVideo()">Get Video</button>
+        </div>
+
+        <div id="loader"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Processing...</p></div>
+
+        <div id="result-box">
+            <div class="v-preview">
+                <img id="v-thumb" src="" alt="Thumbnail">
+                <h3 id="v-title"></h3>
+            </div>
+            <div class="dl-buttons" id="dl-container"></div>
+        </div>
+
+        <div class="dev-footer">
+            <div class="dev-name">DEVELOPER: SAIFUL ISLAM</div>
+            <div class="socials">
+                <a href="https://www.facebook.com/saiful.islam.2029" target="_blank"><i class="fab fa-facebook"></i></a>
+                <a href="https://www.instagram.com/keretoi12" target="_blank"><i class="fab fa-instagram"></i></a>
+                <a href="https://t.me/saifulnm" target="_blank"><i class="fab fa-telegram-plane"></i></a>
+                <a href="https://github.com/saiful167" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://x.com/keretoi12" target="_blank"><i class="fab fa-x-twitter"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchVideo() {
+            const url = document.getElementById('urlInput').value;
+            const loader = document.getElementById('loader');
+            const resultBox = document.getElementById('result-box');
+            const container = document.getElementById('dl-container');
+
+            if(!url) return alert("Link paste koren!");
+            loader.style.display = 'block';
+            resultBox.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/fetch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ q: url })
+                });
+                const json = await response.json();
+                
+                if(json.status === 'ok') {
+                    const doc = new DOMParser().parseFromString(json.data, 'text/html');
+                    document.getElementById('v-thumb').src = doc.querySelector('.image-tik img').src;
+                    document.getElementById('v-title').innerText = doc.querySelector('.content h3').innerText;
+                    
+                    container.innerHTML = '';
+                    doc.querySelectorAll('.tik-button-dl').forEach(btn => {
+                        const a = document.createElement('a');
+                        a.href = btn.href;
+                        a.className = 'dl-btn';
+                        a.innerHTML = `<i class="fas fa-download"></i> ${btn.innerText.trim()}`;
+                        a.target = "_blank";
+                        container.appendChild(a);
+                    });
+                    resultBox.style.display = 'block';
+                } else { alert("Video not found!"); }
+            } catch(e) { alert("Server error!"); }
+            finally { loader.style.display = 'none'; }
+        }
+    </script>
+</body>
+</html>
+
